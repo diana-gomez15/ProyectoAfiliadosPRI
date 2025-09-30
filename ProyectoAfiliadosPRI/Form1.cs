@@ -89,6 +89,8 @@ namespace ProyectoAfiliadosPRI
                         }
                         tablaDatos = dt;
 
+                        MessageBox.Show(string.Join(", ", tablaDatos.Columns.Cast<DataColumn>().Select(c => c.ColumnName)));
+
                     }
 
 
@@ -245,9 +247,11 @@ namespace ProyectoAfiliadosPRI
 
         private void btnFiltrarFecha_Click(object sender, EventArgs e)
         {
-            if (!tablaDatos.Columns.Contains("Fecha_Afiliacion"))
+            string nombreColumna = "FECHA_AFILIACION";
+
+            if (!tablaDatos.Columns.Contains(nombreColumna))
             {
-                MessageBox.Show("No se encontró la columna 'Fecha Afiliacion'");
+                MessageBox.Show($"No se encontró la columna '{nombreColumna}'");
                 return;
             }
 
@@ -259,7 +263,7 @@ namespace ProyectoAfiliadosPRI
                 var filasFiltradas = tablaDatos.AsEnumerable().Where(r =>
                 {
                     DateTime fecha;
-                    if (DateTime.TryParse(r["FechaAfiliacion"].ToString(), out fecha))
+                    if (DateTime.TryParse(r[nombreColumna].ToString(), out fecha))
                     {
                         return fecha.Date >= inicio && fecha.Date <= fin;
                     }
