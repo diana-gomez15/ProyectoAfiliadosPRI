@@ -45,12 +45,6 @@ namespace ProyectoAfiliadosPRI
 
             }
         }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-           
-        }
-
         private void cbEstados_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (cbEstados.SelectedItem == null) return;
@@ -63,6 +57,9 @@ namespace ProyectoAfiliadosPRI
                 if (archivoSeleccionado == null) return;
 
                 string rutaArchivo = archivoSeleccionado.Ruta;
+
+                Thread hilo = new Thread(() =>
+                {
 
                     using (var libro = new XLWorkbook(rutaArchivo))
                     {
@@ -86,7 +83,7 @@ namespace ProyectoAfiliadosPRI
                         }
                         tablaDatos = dt;
 
-                        MessageBox.Show(string.Join(", ", tablaDatos.Columns.Cast<DataColumn>().Select(c => c.ColumnName)));
+                        string.Join(", ", tablaDatos.Columns.Cast<DataColumn>().Select(c => c.ColumnName));
 
                     }
 
@@ -99,8 +96,27 @@ namespace ProyectoAfiliadosPRI
                     {
                         dgvPersonas.Columns.Add(col.ColumnName, col.ColumnName);
                     }
+                    if (tablaDatos.Columns.Contains("ENTIDAD"))
+                    {
+                        var estados = tablaDatos.AsEnumerable().Select(r => r["ENTIDAD"].ToString().Trim()).Where(s => !string.IsNullOrEmpty(s)).Distinct().OrderBy(s => s).ToArray();
 
-                    CargarMunicipiosYEstados();
+
+                    }
+                    if (tablaDatos.Columns.Contains("MUNICIPIO"))
+                    {
+                        var municipios = tablaDatos.AsEnumerable()
+                            .Select(r => r["MUNICIPIO"].ToString().Trim())
+                            .Where(s => !string.IsNullOrEmpty(s))
+                            .Distinct()
+                            .OrderBy(s => s)
+                            .ToArray();
+
+                        cbMunicipios.Items.Clear();
+                        cbMunicipios.Items.Add("Todos");
+                        cbMunicipios.Items.AddRange(municipios);
+                    }
+
+
                     FiltrarDatos();
 
                 }));
@@ -116,34 +132,6 @@ namespace ProyectoAfiliadosPRI
             }
         }
 
-        private void CargarMunicipiosYEstados()
-        {
-            if (tablaDatos.Columns.Contains("ENTIDAD"))
-            {
-                var estados = tablaDatos.AsEnumerable()
-                    .Select(r => r["ENTIDAD"].ToString().Trim())
-                    .Where(s => !string.IsNullOrEmpty(s))
-                    .Distinct()
-                    .OrderBy(s => s)
-                    .ToArray();
-
-                
-            }
-
-            if (tablaDatos.Columns.Contains("MUNICIPIO"))
-            {
-                var municipios = tablaDatos.AsEnumerable()
-                    .Select(r => r["MUNICIPIO"].ToString().Trim())
-                    .Where(s => !string.IsNullOrEmpty(s))
-                    .Distinct()
-                    .OrderBy(s => s)
-                    .ToArray();
-
-                cbMunicipios.Items.Clear();
-                cbMunicipios.Items.Add("Todos");
-                cbMunicipios.Items.AddRange(municipios);
-            }
-        }
         private void FiltrarDatos()
         {
             var filasFiltradas = tablaDatos.AsEnumerable();
@@ -198,22 +186,6 @@ namespace ProyectoAfiliadosPRI
         {
             FiltrarDatos();
         }
-
-        private void dtpPrimera_ValueChanged(object sender, EventArgs e)
-        {
-            
-        }
-
-        private void dtpUltima_ValueChanged(object sender, EventArgs e)
-        {
-            
-
-        }
-
-        private void dgvPersonas_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-        }
-
         private void salirToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.Close();
@@ -227,7 +199,6 @@ namespace ProyectoAfiliadosPRI
 
             CargarArchivos();
 
-           
             cbEstados.SelectedIndex = -1;
             cbEstados.Text = string.Empty;
 
@@ -239,7 +210,7 @@ namespace ProyectoAfiliadosPRI
             dtpPrimera.Value = DateTime.Now;
             dtpUltima.Value = DateTime.Now;
 
-            lblNumAfiliados.Text = "Mostrando: 0 registros";
+            lblNumAfiliados.Text = " Total de Afiliados:";
         }
 
         private void btnFiltrarFecha_Click(object sender, EventArgs e)
@@ -283,8 +254,8 @@ namespace ProyectoAfiliadosPRI
             {
                 MessageBox.Show("Error al filtrar por fecha: " + ex.Message);
             }
-
-
         }
+
+      
     }
 }
