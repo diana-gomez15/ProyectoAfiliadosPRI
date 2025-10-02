@@ -64,9 +64,6 @@ namespace ProyectoAfiliadosPRI
 
                 string rutaArchivo = archivoSeleccionado.Ruta;
 
-                Thread hilo = new Thread(() =>
-                {
-
                     using (var libro = new XLWorkbook(rutaArchivo))
                     {
                         var hoja = libro.Worksheet(1);
